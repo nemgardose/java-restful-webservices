@@ -59,6 +59,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 		
 		
 		String userName = ((User) authResult.getPrincipal()).getUsername();
+		System.out.println("Username in principal method: " + userName);
 //		String tokenSecret = new SecurityConstants().getTokenSecret();
 		
 		String token = Jwts.builder()

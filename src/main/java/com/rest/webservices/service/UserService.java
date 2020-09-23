@@ -7,4 +7,5 @@ import com.rest.webservices.shared.dto.UserDTO;
 public interface UserService extends UserDetailsService {
 	UserDTO createUser(UserDTO user);
 	UserDTO getUser(String email);
+	UserDTO getUserByUserId(String userId);
 }
