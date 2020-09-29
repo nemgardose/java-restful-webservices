@@ -10,11 +10,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.rest.webservices.exception.UserServiceException;
 import com.rest.webservices.io.entity.UserEntity;
 import com.rest.webservices.io.repositories.UserRepository;
 import com.rest.webservices.service.UserService;
 import com.rest.webservices.shared.Utils;
 import com.rest.webservices.shared.dto.UserDTO;
+import com.rest.webservices.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -84,6 +86,23 @@ public class UserServiceImpl implements UserService {
 			throw new UsernameNotFoundException(userId);
 		} else {
 			BeanUtils.copyProperties(userEntity, returnValue);
+			return returnValue;
+		}
+	}
+
+	@Override
+	public UserDTO updateUser(String userId, UserDTO user) {
+		UserDTO returnValue = new UserDTO();
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		
+		if(userEntity == null) {
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		} else {
+			userEntity.setFirstName(user.getFirstName());
+			userEntity.setLastName(user.getLastName());
+			
+			UserEntity updateUserDetails = userRepository.save(userEntity);
+			BeanUtils.copyProperties(updateUserDetails, returnValue);
 			return returnValue;
 		}
 	}
