@@ -1,6 +1,7 @@
 package com.rest.webservices.shared.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class UserDTO implements Serializable {
 
@@ -14,6 +15,7 @@ public class UserDTO implements Serializable {
 	private String encryptedPassword;
 	private String emailVerification;
 	private Boolean emailVerificationStatus = false;
+	private List<AddressDTO> addresses;
 	
 	public long getId() {
 		return id;
@@ -68,6 +70,12 @@ public class UserDTO implements Serializable {
 	}
 	public void setEmailVerificationStatus(boolean emailVerificationStatus) {
 		this.emailVerificationStatus = emailVerificationStatus;
+	}
+	public List<AddressDTO> getAddresses() {
+		return addresses;
+	}
+	public void setAddresses(List<AddressDTO> addresses) {
+		this.addresses = addresses;
 	}
 	
 	

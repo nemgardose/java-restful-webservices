@@ -3,6 +3,7 @@ package com.rest.webservices.ui.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -57,8 +58,10 @@ public class UserController {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		}
 		
-		UserDTO userDto = new UserDTO();
-		BeanUtils.copyProperties(userDetails, userDto);
+//		UserDTO userDto = new UserDTO();
+//		BeanUtils.copyProperties(userDetails, userDto);
+		ModelMapper modelMapper = new ModelMapper();
+		UserDTO userDto = modelMapper.map(userDetails, UserDTO.class);
 		
 		UserDTO createdUser = userService.createUser(userDto);
 		BeanUtils.copyProperties(createdUser, returnValue);
