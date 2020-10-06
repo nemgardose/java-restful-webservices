@@ -3,6 +3,7 @@ package com.rest.webservices.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import com.rest.webservices.io.entity.UserEntity;
 import com.rest.webservices.io.repositories.UserRepository;
 import com.rest.webservices.service.UserService;
 import com.rest.webservices.shared.Utils;
+import com.rest.webservices.shared.dto.AddressDTO;
 import com.rest.webservices.shared.dto.UserDTO;
 import com.rest.webservices.ui.model.response.ErrorMessages;
 
@@ -40,9 +42,17 @@ public class UserServiceImpl implements UserService {
 		if(userRepository.findByEmail(user.getEmail()) != null) {
 			throw new RuntimeException("Record already exists");
 		}
+		
+		for(int index = 0; index < user.getAddresses().size(); index++) {
+			AddressDTO address = user.getAddresses().get(index);
+			address.setUserDetails(user);
+			address.setAddressId(utils.generateAddressId(30));
+			user.getAddresses().set(index, address);
+		}
 
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
+//		BeanUtils.copyProperties(user, userEntity);
+		ModelMapper modelMapper = new ModelMapper();
+		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 		
 		String publicUserId = utils.generateUserId(30);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -50,8 +60,8 @@ public class UserServiceImpl implements UserService {
 		
 		UserEntity storedUserDetails =  userRepository.save(userEntity);
 		
-		UserDTO returnValue = new UserDTO();
-		BeanUtils.copyProperties(storedUserDetails, returnValue);
+//		BeanUtils.copyProperties(storedUserDetails, returnValue);
+		UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
 		
 		return returnValue;
 	}
