@@ -136,16 +136,25 @@ public class UserController {
 			MediaType.APPLICATION_JSON_VALUE })
 	public List<AddressesRest> getUserAddresses(@PathVariable String id) {
 
-		List<AddressesRest> returnValue = new ArrayList<>();
+		List<AddressesRest> addressesListRestModel = new ArrayList<>();
 		List<AddressDTO> addressesDTO = addressesService.getAddresses(id);
 
 		if (addressesDTO != null && !addressesDTO.isEmpty()) {
 			Type listType = new TypeToken<List<AddressesRest>>() {
 			}.getType();
-			returnValue = new ModelMapper().map(addressesDTO, listType);
+			addressesListRestModel = new ModelMapper().map(addressesDTO, listType);
+			
+			for(AddressesRest addressRest: addressesListRestModel) {
+				Link addressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+						.getUserAddress(id, addressRest.getAddressId())).withSelfRel();
+				addressRest.add(addressLink);
+				
+				Link userLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUser(id)).withRel("user");
+				addressRest.add(userLink);
+			}
 		}
 
-		return returnValue;
+		return addressesListRestModel;
 	}
 
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE, 
@@ -159,9 +168,11 @@ public class UserController {
 //		Link addressesLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
 		
 		
-		Link addressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId)).withSelfRel();
+		Link addressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+				.getUserAddress(userId, addressId)).withSelfRel();
 		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
-		Link addressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
+		Link addressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+				.getUserAddresses(userId)).withRel("addresses");
 		
 		AddressesRest addressesRestModel = modelMapper.map(addressesDTO, AddressesRest.class);
 		
