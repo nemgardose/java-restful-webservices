@@ -10,7 +10,6 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -155,9 +154,14 @@ public class UserController {
 		AddressDTO addressesDTO = addressService.getAddress(addressId);
 		ModelMapper modelMapper = new ModelMapper();
 		
-		Link addressLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
+//		Link addressLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
+//		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
+//		Link addressesLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
+		
+		
+		Link addressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId)).withSelfRel();
 		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
-		Link addressesLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
+		Link addressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
 		
 		AddressesRest addressesRestModel = modelMapper.map(addressesDTO, AddressesRest.class);
 		
