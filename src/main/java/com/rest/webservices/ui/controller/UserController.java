@@ -1,6 +1,7 @@
 package com.rest.webservices.ui.controller;
 
 import java.lang.reflect.Type;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +39,8 @@ import com.rest.webservices.ui.model.response.UserRest;
 @RestController
 @RequestMapping("users") // http://localhost:8080/users/
 public class UserController {
+	
+	
 
 	@Autowired
 	UserService userService;
@@ -145,11 +151,21 @@ public class UserController {
 
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE, 
 			MediaType.APPLICATION_JSON_VALUE })
-	public AddressesRest getUserAddress(@PathVariable String addressId) {
+	public AddressesRest getUserAddress(@PathVariable String userId, @PathVariable String addressId) {
 		AddressDTO addressesDTO = addressService.getAddress(addressId);
 		ModelMapper modelMapper = new ModelMapper();
 		
-		return modelMapper.map(addressesDTO, AddressesRest.class);
+		Link addressLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
+		Link addressesLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
+		
+		AddressesRest addressesRestModel = modelMapper.map(addressesDTO, AddressesRest.class);
+		
+		addressesRestModel.add(addressLink);
+		addressesRestModel.add(userLink);
+		addressesRestModel.add(addressesLink);
+		
+		return addressesRestModel;
 	}
 
 	
