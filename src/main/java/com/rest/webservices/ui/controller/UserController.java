@@ -33,19 +33,16 @@ import com.rest.webservices.ui.model.request.UserDetailsRequestModel;
 import com.rest.webservices.ui.model.response.AddressesRest;
 import com.rest.webservices.ui.model.response.ErrorMessages;
 import com.rest.webservices.ui.model.response.OperationStatusModel;
-import com.rest.webservices.ui.model.response.RequestOperationName;
 import com.rest.webservices.ui.model.response.RequestOperationStatus;
 import com.rest.webservices.ui.model.response.UserRest;
 
 @RestController
 @RequestMapping("users") // http://localhost:8080/users/
 public class UserController {
-	
-	
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	AddressService addressService;
 
@@ -145,13 +142,15 @@ public class UserController {
 			Type listType = new TypeToken<List<AddressesRest>>() {
 			}.getType();
 			addressesListRestModel = new ModelMapper().map(addressesDTO, listType);
-			
-			for(AddressesRest addressRest: addressesListRestModel) {
-				Link addressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-						.getUserAddress(id, addressRest.getAddressId())).withSelfRel();
+
+			for (AddressesRest addressRest : addressesListRestModel) {
+				Link addressLink = WebMvcLinkBuilder.linkTo(
+						WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(id, addressRest.getAddressId()))
+						.withSelfRel();
 				addressRest.add(addressLink);
-				
-				Link userLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUser(id)).withRel("user");
+
+				Link userLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUser(id))
+						.withRel("user");
 				addressRest.add(userLink);
 			}
 		}
@@ -183,6 +182,28 @@ public class UserController {
 		addressesRestModel.add(addressesLink);
 		
 		return new EntityModel<>(addressesRestModel);
+	}
+
+	/**
+	 * http://localhost:8080/users/email-verification?token=sdsfsdf
+	 */
+	
+	@GetMapping(path = "/email-verification", produces = {MediaType.APPLICATION_PROBLEM_JSON_VALUE, 
+			MediaType.APPLICATION_ATOM_XML_VALUE })
+	public OperationStatusModel verifyEmailToken(@RequestParam(value="token") String token) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+		
+		boolean isVerified = userService.verifyEmailToken(token);
+		
+		if(isVerified) {
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		} else {
+			returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		}
+		
+		return returnValue;
 	}
 
 	
