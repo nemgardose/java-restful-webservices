@@ -57,6 +57,9 @@ public class UserServiceImpl implements UserService {
 		String publicUserId = utils.generateUserId(30);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userEntity.setUserId(publicUserId);
+		userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
+		userEntity.setEmailVerificationStatus(false);
+		
 		
 		UserEntity storedUserDetails =  userRepository.save(userEntity);
 		
